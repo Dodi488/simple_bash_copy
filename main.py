@@ -2,6 +2,7 @@ import sys
 import os
 from pathlib import Path
 import subprocess
+import shlex
 
 builtins = ["exit", "echo", "type", "pwd", "cd"]
 path = os.environ.get("PATH", "")
@@ -47,11 +48,14 @@ def main():
     # TODO: Uncomment the code below to pass the first stage
     while True:
         sys.stdout.write("$ ")
-        commands = input()
-        if commands == None or commands.isspace():
+        args = input()
+        if args == None or args.isspace():
             continue
 
-        commands = commands.split(" ")
+        lexer = shlex.shlex(args, posix=True)
+        lexer.whitespace_split = True
+
+        commands = list(lexer)
 
         builtins = {
             "exit": exit,
