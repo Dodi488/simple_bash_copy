@@ -3,8 +3,9 @@ import os
 from pathlib import Path
 import subprocess
 
-builtins = ["exit", "echo", "type"]
+builtins = ["exit", "echo", "type", "pwd", "cd"]
 path = os.environ.get("PATH", "")
+old_cwd = ""
 
 def exit(commands: list):
     sys.exit(0)
@@ -26,16 +27,38 @@ def type(commands: list):
         else:
             print(f"{command}: not found")
 
+def pwd(commands: list):
+    print(Path.cwd())
+
+def cd(commands: list):
+    new_dir = commands[1]
+    global od_cwd
+
+    if new_dir == "~":
+        new_dir = os.getenv("HOME")
+
+    if Path(new_dir).exists():
+        old_cwd = Path.cwd()
+        os.chdir(new_dir)
+    else:
+        print(f"cd: {new_dir}: No such file or directory")
+
 def main():
     # TODO: Uncomment the code below to pass the first stage
     while True:
         sys.stdout.write("$ ")
-        commands = input().split(" ")
+        commands = input()
+        if commands == None or commands.isspace():
+            continue
+
+        commands = commands.split(" ")
 
         builtins = {
             "exit": exit,
             "echo": echo,
-            "type": type
+            "type": type,
+            "pwd": pwd,
+            "cd": cd
         }
 
         handler = builtins.get(commands[0])
